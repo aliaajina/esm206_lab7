@@ -1,0 +1,118 @@
+---
+title: 'Lab 7: Multiple linear regression into'
+author: "Alia Ajina"
+date: "11/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE, message = FALSE, warnings = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warnings = FALSE)
+
+library(tidyverse)
+library(palmerpenguins)
+library(GGally)
+library(broom)
+library(modelsummary)
+library(stargazer)
+```
+
+## Explore penguins
+
+Use `GGally::ggpairs()` to create pairs plot.
+
+```{r}
+ggpairs(penguins)
+```
+
+That's kind of overkill. Let's simplify the variables that we include in our ggpairs plot:
+
+- species
+- bill_length_mm through body_mass_g
+
+```{r}
+penguins %>% 
+  select(species, bill_length_mm:body_mass_g) %>% 
+  ggpairs(aes(color = species))
+```
+
+Quick way to look at multi-variable comparisons and add some groupings ^^
+
+## Multiple linear regression
+
+We are going to try to understand (a bit better) relationships between multiple predictor variables and an outcome which is penguin body mass.
+
+The different predcitor variables we're going to try are:
+
+- species
+- flipper length
+- sex
+- bill depth
+
+They should be grounded in some understanding of the impacts of these different variables on body mass but we're just going to try some different options
+
+### Model 1
+
+Model body mass based on only flipper length and bill depth (bad idea... there are important variables missing, ie sex)
+
+(a model running is not a good indication of success for modeling)
+
+(tilde = as a function of...)
+
+```{r}
+model_1 <- lm(body_mass_g ~ flipper_length_mm + bill_depth_mm, data = penguins)
+
+# Call model by name to return only coefficients:
+model_1
+
+summary(model_1)
+```
+If everything else is held constant, on average, for each 1 mm increase in flipper length, we expect a 51.54 (`r model_1$flipper_length_mm` <- this is WRONG, figure it out, may be why she uses tidy data) grams increase in body mass.
+
+or "If everything else is held constant, we expect that for each 1mm increase in flipper length, penguin body mass is expected to increase by 51.54 g, on average." <- remember to use inline code
+
+R squared means "76% of variance in penguin body mass (dependent variable), is explained by this model (or the independent variables, which are flipper length and bill length)"
+
+There is still 24% that is not explained, might be missing some important variables (such as species or sex) that explain remaining variance.
+
+Actually -- we think that a model for penguin body mass should contain variable species, flipper length, and penguin sex.
+
+```{r}
+model_2 <- lm(body_mass_g ~ species + flipper_length_mm + sex, data = penguins )
+
+
+# Let's check out the coefficients:
+model_2
+```
+
+Reference level: 
+female = 0,
+Adelie penguin species = 0, 
+flipper length doesn't have a reference because we only have references for categorical variables
+
+- Explain how we interpret the coefficient 836 "If everything else is held constant, I expect the Gentoo penguin to be 836.26 grams larger than an Adelie penguin"
+- "On average, we expect a male penguin to be 530.38 grams larger than a female penguin if everything else is held constant (all other variables are the same)"
+
+## Visualize this model
+
+```{r}
+ggplot(data = penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species)) +
+  facet_wrap(~ sex)
+```
+Males seem to have a larger mass than females on average, in our equation, it says on average, theres 530 grams of increase on average in male penguins compared to female penguins
+- does this makes sense? yes
+- we can see this difference reflected in our visualization
+Does it make sense that Adelie penguins are 836 grams smaller than Gentoo penguins on average? Yes, looking at the graph, yes that makes sense
+
+Similarly, this tells me that on average I would expect that chinstaps would have an 87 gram lower body mass than Adelies, that's a small change, and this is seen in the largely overlapping body masses in our graph
+
+
+
+
+
+
+
+
+
+
+
