@@ -106,8 +106,43 @@ Does it make sense that Adelie penguins are 836 grams smaller than Gentoo pengui
 
 Similarly, this tells me that on average I would expect that chinstaps would have an 87 gram lower body mass than Adelies, that's a small change, and this is seen in the largely overlapping body masses in our graph
 
+## A couple ways to get & report MLR model outcomes
 
+Use broom::tidy() to get model coefficient info in a tidy data frame.
 
+```{r}
+penguin_model2_coef <- tidy(model_2)
+
+penguin_model2_coef
+```
+
+Try to write inline code `r` that spits out the coefficient for Gentoo here
+
+IN LINE REFERENCING: call it within the estimate column and call just speciesGentoo so it's row 3
+[3] is how we call it
+`r penguin_model2_coef$estimate[3]`
+
+## Look at model diagnostics
+
+Use the plot() function.
+
+```{r}
+plot(model_2)
+
+summary(model_2)
+```
+
+R2 value is much greater after adding sex and species as more variance is explained by the model we created
+
+Use modelsummary:
+```{r}
+modelsummary(model_2)
+```
+
+Use stargazer
+```{r}
+stargazer(model_2, model_1, type = "html")
+```
 
 
 
